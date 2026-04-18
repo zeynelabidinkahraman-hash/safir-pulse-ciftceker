@@ -210,7 +210,7 @@ function render(period){
   document.getElementById("santiye-ozet").innerHTML=santiyeHtml;
   function rankList(items,container,valFn,col,suffixFn){
     var vals=items.map(function(p){return valFn(p);});var max=Math.max.apply(null,vals);var html="";
-    items.forEach(function(p,i){var v=vals[i];var pct=max>0?v/max*100:0;html+="<div class="rank-item"><div class="rank-plaka" style="color:"+GRUP_COL[getGrup(p)]+"">"+p.replace("34 ","")+"</div><div class="rank-bar-outer"><div class="rank-bar-inner" style="width:"+pct+"%;background:"+col+""></div></div><div class="rank-val" style="color:"+col+"">"+suffixFn(v)+"</div></div>";});
+    items.forEach(function(p,i){var v=vals[i];var pct=max>0?v/max*100:0;html+='<div class="rank-item"><div class="rank-plaka" style="color:'+GRUP_COL[getGrup(p)]+'">'+p.replace('34 ','')+'</div><div class="rank-bar-outer"><div class="rank-bar-inner" style="width:'+pct+'%;background:'+col+'"></div></div><div class="rank-val" style="color:'+col+'">'+suffixFn(v)+'</div></div>';});
     document.getElementById(container).innerHTML=html;
   }
   var topKmList=TUM_ARACLAR.slice().sort(function(a,b){return(yakit[b]?yakit[b].km:0)-(yakit[a]?yakit[a].km:0);}).slice(0,7);
