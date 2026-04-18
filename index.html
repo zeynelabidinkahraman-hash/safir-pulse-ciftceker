@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SAFIR PULSE CIFTCEKER</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@300;400;500;600;700;800;900&family=Barlow:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root{--bg:#080b0e;--bg2:#0d1117;--bg3:#131920;--border:#1a2230;--border2:#212d3d;--text:#e2e8f0;--muted:#3d4f63;--muted2:#5a7089;--hatay:#3b82f6;--maras:#f59e0b;--entegre:#10b981;--red:#ef4444;--purple:#a78bfa;--teal:#2dd4bf;--accent:#2dd4bf;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:"Barlow",sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+.header{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:56px;position:sticky;top:0;z-index:100;}
+.logo{font-family:"Barlow Condensed",sans-serif;font-weight:800;font-size:20px;letter-spacing:.04em;color:var(--accent);}
+.logo span{color:var(--muted2);font-weight:400;}
+.grup-legend{display:flex;align-items:center;gap:16px;}
+.grup-dot{display:flex;align-items:center;gap:6px;font-family:"Barlow Condensed",sans-serif;font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted2);}
+.grup-dot span{width:10px;height:10px;border-radius:2px;display:inline-block;}
+.period-tabs{display:flex;gap:2px;background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:3px;}
+.ptab{font-family:"Barlow Condensed",sans-serif;font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted2);padding:4px 14px;border-radius:2px;cursor:pointer;transition:all .15s;border:none;background:transparent;}
+.ptab:hover{color:var(--text);}.ptab.active{background:var(--accent);color:#000;}
+.kpi-strip{display:grid;grid-template-columns:repeat(6,1fr);border-bottom:1px solid var(--border);}
+.kpi{padding:16px 20px;border-right:1px solid var(--border);position:relative;overflow:hidden;}
+.kpi:last-child{border-right:none;}
+.kpi::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;background:var(--accent);opacity:0;transition:opacity .2s;}
+.kpi:hover::before{opacity:1;}
+.kpi-label{font-family:"Barlow Condensed",sans-serif;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
+.kpi-val{font-family:"Barlow Condensed",sans-serif;font-size:28px;font-weight:700;line-height:1;}
+.kpi-sub{font-size:11px;color:var(--muted2);margin-top:4px;}
+.main{padding:20px 24px;display:flex;flex-direction:column;gap:20px;}
+.insight{background:var(--bg2);border:1px solid var(--border);border-left:3px solid var(--accent);padding:12px 16px;border-radius:4px;font-size:13px;color:var(--muted2);line-height:1.6;}
+.insight strong{color:var(--text);}
+.tag{display:inline-block;font-family:"JetBrains Mono",monospace;font-size:11px;padding:1px 6px;border-radius:2px;margin:0 2px;}
+.tag-h{background:rgba(59,130,246,.15);color:#93c5fd;}
+.tag-m{background:rgba(245,158,11,.15);color:#fcd34d;}
+.tag-e{background:rgba(16,185,129,.15);color:#6ee7b7;}
+.tag-r{background:rgba(239,68,68,.15);color:#fca5a5;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;}
+.g21{display:grid;grid-template-columns:2fr 1fr;gap:16px;}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:6px;overflow:hidden;}
+.card-header{padding:14px 18px 10px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.card-title{font-family:"Barlow Condensed",sans-serif;font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text);}
+.card-desc{font-size:11px;color:var(--muted);margin-top:2px;}
+.card-body{padding:16px 18px;}
+.chart-wrap{position:relative;}
+.arac-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;}
+.arac-kart{background:var(--bg3);border:1px solid var(--border);border-left:3px solid var(--border2);border-radius:4px;padding:12px;transition:border-color .15s;}
+.arac-kart:hover{border-left-color:var(--accent);}
+.ak-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;}
+.ak-plaka{font-family:"Barlow Condensed",sans-serif;font-size:15px;font-weight:800;letter-spacing:.04em;}
+.ak-model{font-size:10px;color:var(--muted);margin-top:1px;}
+.ak-badge{font-family:"JetBrains Mono",monospace;font-size:10px;padding:2px 6px;border-radius:2px;font-weight:700;}
+.ak-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px;}
+.ak-ml{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px;}
+.ak-mv{font-family:"JetBrains Mono",monospace;font-size:12px;font-weight:700;}
+.ak-bar{height:3px;background:var(--border);border-radius:2px;margin-top:8px;overflow:hidden;}
+.ak-bf{height:100%;border-radius:2px;}
+.scroll-wrap{overflow-x:auto;max-height:440px;overflow-y:auto;}
+.scroll-wrap::-webkit-scrollbar{width:4px;height:4px;}
+.scroll-wrap::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+.tablo{width:100%;border-collapse:collapse;font-size:12px;}
+.tablo th{font-family:"Barlow Condensed",sans-serif;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);text-align:left;padding:8px 10px;border-bottom:1px solid var(--border);background:var(--bg);position:sticky;top:0;}
+.tablo th.right{text-align:right;}
+.tablo td{padding:7px 10px;border-bottom:1px solid rgba(26,34,48,.6);vertical-align:middle;}
+.tablo tr:hover td{background:rgba(255,255,255,.02);}
+.tablo td.mono{font-family:"JetBrains Mono",monospace;font-size:11px;text-align:right;}
+.plaka-cell{font-family:"JetBrains Mono",monospace;font-size:11px;font-weight:700;}
+.rank-item{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid rgba(26,34,48,.5);}
+.rank-item:last-child{border-bottom:none;}
+.rank-plaka{font-family:"JetBrains Mono",monospace;font-size:10px;color:var(--muted2);width:80px;flex-shrink:0;}
+.rank-bar-outer{flex:1;height:5px;background:var(--border);border-radius:3px;overflow:hidden;}
+.rank-bar-inner{height:100%;border-radius:3px;}
+.rank-val{font-family:"JetBrains Mono",monospace;font-size:10px;width:72px;text-align:right;flex-shrink:0;}
+.gbadge{display:inline-block;font-family:"Barlow Condensed",sans-serif;font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:2px 5px;border-radius:2px;}
+</style>
+</head>
+<body>
+<div class="header">
+  <div style="display:flex;align-items:center;gap:16px">
+    <div class="logo">SAFIR PULSE <span>CIFTCEKER</span></div>
+    <div class="grup-legend">
+      <div class="grup-dot"><span style="background:var(--hatay)"></span>Hatay (4)</div>
+      <div class="grup-dot"><span style="background:var(--maras)"></span>Kahramanmaras (11)</div>
+      <div class="grup-dot"><span style="background:var(--entegre)"></span>Entegre (10)</div>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;gap:8px">
+    <div class="period-tabs">
+      <button class="ptab active" onclick="setPeriod('2026',this)">2026 Ozet</button>
+      <button class="ptab" onclick="setPeriod('oca',this)">Ocak</button>
+      <button class="ptab" onclick="setPeriod('sub',this)">Subat</button>
+      <button class="ptab" onclick="setPeriod('mar',this)">Mart</button>
+    </div>
+    <div id="donem-text" style="font-family:JetBrains Mono,monospace;font-size:10px;color:var(--muted)">2026 Ozet</div>
+  </div>
+  <div style="font-family:JetBrains Mono,monospace;font-size:10px;color:var(--muted)">Son guncelleme: Nisan 2026 - Mart teknik</div>
+</div>
+<div class="kpi-strip">
+  <div class="kpi"><div class="kpi-label">Toplam Arac</div><div class="kpi-val" style="color:var(--accent)">25</div><div class="kpi-sub">Hatay 4 - Maras 11 - Entegre 10</div></div>
+  <div class="kpi"><div class="kpi-label">Toplam KM</div><div class="kpi-val" id="kpi-km" style="color:var(--teal)">-</div><div class="kpi-sub" id="kpi-km-sub">Donem</div></div>
+  <div class="kpi"><div class="kpi-label">Toplam Yakit</div><div class="kpi-val" id="kpi-yakit" style="color:var(--maras)">-</div><div class="kpi-sub" id="kpi-yakit-sub">Litre</div></div>
+  <div class="kpi"><div class="kpi-label">Ort. L/km</div><div class="kpi-val" id="kpi-lkm">-</div><div class="kpi-sub" id="kpi-lkm-sub">Filo geneli</div></div>
+  <div class="kpi"><div class="kpi-label">Teknik Gider</div><div class="kpi-val" id="kpi-teknik" style="color:var(--purple)">-</div><div class="kpi-sub" id="kpi-teknik-sub">Ariza + Lastik</div></div>
+  <div class="kpi"><div class="kpi-label">Lastik Gider</div><div class="kpi-val" id="kpi-lastik" style="color:var(--maras)">-</div><div class="kpi-sub" id="kpi-lastik-sub">Donem</div></div>
+</div>
+<div class="main">
+  <div class="insight" id="insight-bar">Yukleniyor...</div>
+  <div class="g2">
+    <div class="card"><div class="card-header"><div><div class="card-title">Aylik KM - 25 Arac</div><div class="card-desc" id="km-desc">Santiye renkleriyle - Mavi=Hatay - Turuncu=Maras - Yesil=Entegre</div></div></div><div class="card-body"><div class="chart-wrap" style="height:280px"><canvas id="chart-km"></canvas></div></div></div>
+    <div class="card"><div class="card-header"><div><div class="card-title">Toplam Yakit (L) - 25 Arac</div><div class="card-desc">Aylik toplam yakit tuketimi</div></div></div><div class="card-body"><div class="chart-wrap" style="height:280px"><canvas id="chart-yakit"></canvas></div></div></div>
+  </div>
+  <div class="g2">
+    <div class="card"><div class="card-header"><div><div class="card-title">L/km Tuketim Analizi</div><div class="card-desc">Hatay &lt;0.42 yesil - Maras/Entegre &lt;1.50 yesil</div></div></div><div class="card-body"><div class="chart-wrap" style="height:280px"><canvas id="chart-lkm"></canvas></div></div></div>
+    <div class="card"><div class="card-header"><div><div class="card-title">Teknik Gider - 25 Arac</div><div class="card-desc">Ariza &amp; Bakim + Lastik</div></div></div><div class="card-body"><div class="chart-wrap" style="height:280px"><canvas id="chart-teknik"></canvas></div></div></div>
+  </div>
+  <div class="g21">
+    <div class="card"><div class="card-header"><div><div class="card-title">Aylik KM Karsilastirmasi</div><div class="card-desc">Ocak - Subat - Mart</div></div></div><div class="card-body"><div class="chart-wrap" style="height:240px"><canvas id="chart-trend"></canvas></div></div></div>
+    <div class="card"><div class="card-header"><div class="card-title">Santiye Ozeti</div></div><div class="card-body" id="santiye-ozet"></div></div>
+  </div>
+  <div class="g3">
+    <div class="card"><div class="card-header"><div class="card-title">En Cok KM</div></div><div class="card-body" id="top-km"></div></div>
+    <div class="card"><div class="card-header"><div class="card-title">En Yuksek Teknik Gider</div></div><div class="card-body" id="top-teknik"></div></div>
+    <div class="card"><div class="card-header"><div class="card-title">En Yuksek Yakit</div></div><div class="card-body" id="top-yakit"></div></div>
+  </div>
+  <div class="card">
+    <div class="card-header"><div><div class="card-title">Arac Detay Tablosu</div><div class="card-desc">25 arac - KM, yakit, L/km, teknik gider, lastik</div></div></div>
+    <div class="scroll-wrap"><table class="tablo"><thead><tr><th>Plaka</th><th>Santiye</th><th class="right">KM</th><th class="right">Yakit (L)</th><th class="right">L/km</th><th class="right">Teknik Top.</th><th class="right">Ariza</th><th class="right">Lastik</th></tr></thead><tbody id="tablo-body"></tbody></table></div>
+  </div>
+  <div>
+    <div style="font-family:Barlow Condensed,sans-serif;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:12px;display:flex;align-items:center;gap:8px">Arac Kartlari <span style="flex:1;height:1px;background:var(--border);display:block"></span></div>
+    <div class="arac-grid" id="arac-grid"></div>
+  </div>
+</div>
+<script>
+const GRUPLAR={hatay:['34 KZN 266','34 KSN 642','34 KSN 825','34 KZN 393'],maras:['34 KSN 710','34 MAM 959','34 KZN 427','34 NEU 346','34 NEU 278','34 NEU 388','34 NUA 995','34 NUA 879','34 NUA 958','34 NUA 903','34 NUA 973'],entegre:['34 KOA 236','34 KGH 607','34 KGR 249','34 KGH 623','34 MAN 020','34 KOA 421','34 KGH 216','34 KOA 457','34 NIR 113','34 NIR 127']};
+function getGrup(p){if(GRUPLAR.hatay.indexOf(p)>=0)return "hatay";if(GRUPLAR.maras.indexOf(p)>=0)return "maras";if(GRUPLAR.entegre.indexOf(p)>=0)return "entegre";return "diger";}
+const GRUP_LABEL={hatay:"Hatay",maras:"Kahramanmaras",entegre:"Entegre"};
+const GRUP_COL={hatay:"#3b82f6",maras:"#f59e0b",entegre:"#10b981"};
+const GRUP_COL_A={hatay:"rgba(59,130,246,.7)",maras:"rgba(245,158,11,.7)",entegre:"rgba(16,185,129,.7)"};
+const YAKIT={
+oca:{'34 KZN 266':{km:4678,yakitL:1921},'34 KSN 642':{km:4762,yakitL:1709},'34 KSN 825':{km:6030,yakitL:2216},'34 KZN 393':{km:3642,yakitL:1854},'34 KSN 710':{km:583,yakitL:1078},'34 MAM 959':{km:724,yakitL:1137},'34 KZN 427':{km:520,yakitL:860},'34 NEU 346':{km:703,yakitL:1262},'34 NEU 278':{km:640,yakitL:1132},'34 NEU 388':{km:620,yakitL:1201},'34 NUA 995':{km:609,yakitL:922},'34 NUA 879':{km:614,yakitL:1184},'34 NUA 958':{km:616,yakitL:1085},'34 NUA 903':{km:673,yakitL:1227},'34 NUA 973':{km:600,yakitL:1265},'34 KOA 236':{km:2315,yakitL:3531},'34 KGH 607':{km:1340,yakitL:2483},'34 KGR 249':{km:2173,yakitL:3200},'34 KGH 623':{km:2291,yakitL:3723},'34 MAN 020':{km:503,yakitL:827},'34 KOA 421':{km:764,yakitL:1555},'34 KGH 216':{km:768,yakitL:1178},'34 KOA 457':{km:2028,yakitL:3426},'34 NIR 113':{km:1627,yakitL:2522},'34 NIR 127':{km:2034,yakitL:3580}},
+sub:{'34 KZN 266':{km:1199,yakitL:2046},'34 KSN 642':{km:1098,yakitL:1922},'34 KSN 825':{km:546,yakitL:1122},'34 KZN 393':{km:1302,yakitL:1896},'34 KSN 710':{km:1965,yakitL:1687},'34 MAM 959':{km:1098,yakitL:1492},'34 KZN 427':{km:888,yakitL:1227},'34 NEU 346':{km:1154,yakitL:1202},'34 NEU 278':{km:1139,yakitL:1387},'34 NEU 388':{km:946,yakitL:1322},'34 NUA 995':{km:1322,yakitL:1419},'34 NUA 879':{km:1566,yakitL:1261},'34 NUA 958':{km:1448,yakitL:1389},'34 NUA 903':{km:1425,yakitL:1187},'34 NUA 973':{km:1531,yakitL:1693},'34 KOA 236':{km:1811,yakitL:2502},'34 KGH 607':{km:1607,yakitL:2384},'34 KGR 249':{km:1657,yakitL:2513},'34 KGH 623':{km:1807,yakitL:3030},'34 MAN 020':{km:983,yakitL:1893},'34 KOA 421':{km:477,yakitL:1136},'34 KGH 216':{km:1292,yakitL:1666},'34 KOA 457':{km:1779,yakitL:2794},'34 NIR 113':{km:1437,yakitL:2469},'34 NIR 127':{km:1652,yakitL:2732}},
+mar:{'34 KZN 266':{km:1368,yakitL:1823},'34 KSN 642':{km:1577,yakitL:1538},'34 KSN 825':{km:1173,yakitL:1519},'34 KZN 393':{km:978,yakitL:1206},'34 KSN 710':{km:951,yakitL:1645},'34 MAM 959':{km:1207,yakitL:1391},'34 KZN 427':{km:825,yakitL:1273},'34 NEU 346':{km:1700,yakitL:1562},'34 NEU 278':{km:1226,yakitL:1450},'34 NEU 388':{km:1507,yakitL:1484},'34 NUA 995':{km:689,yakitL:1267},'34 NUA 879':{km:864,yakitL:1302},'34 NUA 958':{km:970,yakitL:1336},'34 NUA 903':{km:935,yakitL:1390},'34 NUA 973':{km:728,yakitL:899},'34 KOA 236':{km:2235,yakitL:3699},'34 KGH 607':{km:372,yakitL:80},'34 KGR 249':{km:1899,yakitL:2996},'34 KGH 623':{km:1769,yakitL:2844},'34 MAN 020':{km:1223,yakitL:1787},'34 KOA 421':{km:1468,yakitL:2597},'34 KGH 216':{km:796,yakitL:645},'34 KOA 457':{km:2388,yakitL:3865},'34 NIR 113':{km:1683,yakitL:2769},'34 NIR 127':{km:2222,yakitL:3930}}
+};
+const TEKNIK={
+oca:{'34 KGH 607':{ariza:17486,lastik:0,toplam:17486},'34 KGH 623':{ariza:79965,lastik:0,toplam:79965},'34 KGH 216':{ariza:21758,lastik:43252,toplam:65010},'34 KGR 249':{ariza:13801,lastik:0,toplam:13801},'34 KOA 421':{ariza:59970,lastik:0,toplam:59970},'34 KOA 236':{ariza:62590,lastik:14780,toplam:77370},'34 KOA 457':{ariza:15038,lastik:13250,toplam:28288},'34 KSN 642':{ariza:115275,lastik:7500,toplam:122775},'34 KSN 825':{ariza:24028,lastik:1438,toplam:25466},'34 KSN 710':{ariza:4490,lastik:0,toplam:4490},'34 MAM 959':{ariza:0,lastik:0,toplam:0},'34 MAN 020':{ariza:30823,lastik:0,toplam:30823},'34 NIR 113':{ariza:31750,lastik:0,toplam:31750},'34 KZN 427':{ariza:8290,lastik:0,toplam:8290},'34 KZN 266':{ariza:27554,lastik:0,toplam:27554},'34 NEU 346':{ariza:0,lastik:0,toplam:0},'34 NEU 278':{ariza:0,lastik:0,toplam:0},'34 NIR 127':{ariza:29990,lastik:14400,toplam:44390},'34 KZN 393':{ariza:299236,lastik:6975,toplam:306211},'34 NUA 995':{ariza:4145,lastik:0,toplam:4145},'34 NUA 973':{ariza:0,lastik:0,toplam:0},'34 NUA 879':{ariza:0,lastik:0,toplam:0},'34 NUA 903':{ariza:4145,lastik:0,toplam:4145},'34 NUA 958':{ariza:0,lastik:0,toplam:0},'34 NEU 388':{ariza:8980,lastik:2500,toplam:11480}},
+sub:{'34 KGH 607':{ariza:2179,lastik:14750,toplam:16929},'34 KGH 623':{ariza:943,lastik:0,toplam:943},'34 KGH 216':{ariza:1834,lastik:0,toplam:1834},'34 KGR 249':{ariza:0,lastik:55650,toplam:55650},'34 KOA 421':{ariza:0,lastik:0,toplam:0},'34 KOA 236':{ariza:10324,lastik:0,toplam:10324},'34 KOA 457':{ariza:19410,lastik:35783,toplam:55193},'34 KSN 642':{ariza:5271,lastik:0,toplam:5271},'34 KSN 825':{ariza:52983,lastik:0,toplam:52983},'34 KSN 710':{ariza:27872,lastik:14425,toplam:42297},'34 MAM 959':{ariza:0,lastik:14425,toplam:14425},'34 MAN 020':{ariza:88846,lastik:26500,toplam:115346},'34 NIR 113':{ariza:0,lastik:6625,toplam:6625},'34 KZN 427':{ariza:19877,lastik:0,toplam:19877},'34 KZN 266':{ariza:2875,lastik:30350,toplam:33225},'34 NEU 346':{ariza:5990,lastik:21210,toplam:27200},'34 NEU 278':{ariza:8980,lastik:35208,toplam:44188},'34 NIR 127':{ariza:0,lastik:6625,toplam:6625},'34 KZN 393':{ariza:0,lastik:0,toplam:0},'34 NUA 995':{ariza:0,lastik:0,toplam:0},'34 NUA 973':{ariza:8398,lastik:7213,toplam:15610},'34 NUA 879':{ariza:9302,lastik:0,toplam:9302},'34 NUA 903':{ariza:5898,lastik:14918,toplam:20815},'34 NUA 958':{ariza:1500,lastik:29835,toplam:31335},'34 NEU 388':{ariza:7980,lastik:41993,toplam:49973}},
+mar:{'34 KGH 607':{ariza:7672,lastik:70908,toplam:78580},'34 KGH 623':{ariza:87633,lastik:0,toplam:87633},'34 KGH 216':{ariza:24452,lastik:17131,toplam:41583},'34 KGR 249':{ariza:6164,lastik:26325,toplam:32489},'34 KOA 421':{ariza:25181,lastik:6711,toplam:31892},'34 KOA 236':{ariza:0,lastik:13550,toplam:13550},'34 KOA 457':{ariza:322,lastik:22775,toplam:23097},'34 KSN 642':{ariza:2805,lastik:0,toplam:2805},'34 KSN 825':{ariza:5234,lastik:1069,toplam:6303},'34 KSN 710':{ariza:1629,lastik:0,toplam:1629},'34 MAM 959':{ariza:0,lastik:1629,toplam:1629},'34 MAN 020':{ariza:0,lastik:0,toplam:0},'34 NIR 113':{ariza:6043,lastik:14579,toplam:20622},'34 KZN 427':{ariza:1629,lastik:0,toplam:1629},'34 KZN 266':{ariza:6800,lastik:0,toplam:6800},'34 NEU 346':{ariza:11006,lastik:0,toplam:11006},'34 NEU 278':{ariza:1790,lastik:0,toplam:1790},'34 NIR 127':{ariza:0,lastik:4095,toplam:4095},'34 KZN 393':{ariza:7586,lastik:44425,toplam:52011},'34 NUA 995':{ariza:3067,lastik:0,toplam:3067},'34 NUA 973':{ariza:575,lastik:53877,toplam:54452},'34 NUA 879':{ariza:0,lastik:1629,toplam:1629},'34 NUA 903':{ariza:2204,lastik:0,toplam:2204},'34 NUA 958':{ariza:5624,lastik:0,toplam:5624},'34 NEU 388':{ariza:0,lastik:0,toplam:0}}
+};
+function getYakit(p){if(p==="sub")return YAKIT.sub;if(p==="mar")return YAKIT.mar;if(p==="2026"){var r={};Object.keys(YAKIT.oca).forEach(function(k){var o=YAKIT.oca[k]||{km:0,yakitL:0};var s=YAKIT.sub[k]||{km:0,yakitL:0};var m=YAKIT.mar[k]||{km:0,yakitL:0};r[k]={km:o.km+s.km+m.km,yakitL:o.yakitL+s.yakitL+m.yakitL};});return r;}return YAKIT.oca;}
+function getTeknik(p){if(p==="sub")return TEKNIK.sub;if(p==="mar")return TEKNIK.mar;if(p==="2026"){var r={};Object.keys(TEKNIK.oca).forEach(function(k){var o=TEKNIK.oca[k]||{ariza:0,lastik:0,toplam:0};var s=TEKNIK.sub[k]||{ariza:0,lastik:0,toplam:0};var m=TEKNIK.mar[k]||{ariza:0,lastik:0,toplam:0};r[k]={ariza:o.ariza+s.ariza+m.ariza,lastik:o.lastik+s.lastik+m.lastik,toplam:o.toplam+s.toplam+m.toplam};});return r;}return TEKNIK.oca;}
+var charts={};
+Chart.defaults.color="#3d4f63";Chart.defaults.borderColor="#1a2230";Chart.defaults.font.family="JetBrains Mono,monospace";Chart.defaults.font.size=10;
+function fmtTL(n){return n>0?"&#8378;"+(n/1000).toFixed(0)+"k":"---";}
+function fmtFull(n){return "&#8378;"+Math.round(n).toLocaleString("tr-TR");}
+function getLhkmColor(plaka,lkm){if(lkm<=0)return"#3d4f63";var g=getGrup(plaka);if(g==="hatay")return lkm>0.50?"#ef4444":lkm>0.42?"#f59e0b":"#10b981";return lkm>2.00?"#ef4444":lkm>1.50?"#f59e0b":"#10b981";}
+var TUM_ARACLAR=GRUPLAR.hatay.concat(GRUPLAR.maras).concat(GRUPLAR.entegre);
+function render(period){
+  var yakit=getYakit(period);var teknik=getTeknik(period);
+  var topKm=TUM_ARACLAR.reduce(function(s,p){var d=yakit[p];return s+(d?d.km:0);},0);
+  var topYakit=TUM_ARACLAR.reduce(function(s,p){var d=yakit[p];return s+(d?d.yakitL:0);},0);
+  var topTeknik=TUM_ARACLAR.reduce(function(s,p){var t=teknik[p];return s+(t?Math.max(0,t.toplam):0);},0);
+  var topAriza=TUM_ARACLAR.reduce(function(s,p){var t=teknik[p];return s+(t&&t.ariza>0?t.ariza:0);},0);
+  var topLastik=TUM_ARACLAR.reduce(function(s,p){var t=teknik[p];return s+(t?t.lastik:0);},0);
+  var avgLkm=topKm>0&&topYakit>0?(topYakit/topKm).toFixed(3):0;
+  document.getElementById("kpi-km").textContent=topKm>0?topKm.toLocaleString()+" km":"---";
+  document.getElementById("kpi-km-sub").textContent="Tum gruplar";
+  document.getElementById("kpi-yakit").textContent=topYakit>0?topYakit.toLocaleString()+" L":"---";
+  document.getElementById("kpi-yakit-sub").textContent=period==="2026"?"Ocak+Subat+Mart":period==="oca"?"Ocak 2026":period==="sub"?"Subat 2026":"Mart 2026";
+  var lkmEl=document.getElementById("kpi-lkm");
+  lkmEl.textContent=avgLkm>0?avgLkm+" L/km":"---";
+  lkmEl.style.color=avgLkm>0?(parseFloat(avgLkm)>1.0?"#f59e0b":"#10b981"):"var(--muted2)";
+  document.getElementById("kpi-teknik").textContent=topTeknik>0?"&#8378;"+(topTeknik/1000).toFixed(0)+"k":"---";
+  document.getElementById("kpi-teknik-sub").textContent="Ariza &#8378;"+(topAriza/1000).toFixed(0)+"k - Lastik &#8378;"+(topLastik/1000).toFixed(0)+"k";
+  document.getElementById("kpi-lastik").textContent=topLastik>0?"&#8378;"+(topLastik/1000).toFixed(0)+"k":"---";
+  document.getElementById("kpi-lastik-sub").textContent="Sadece lastik";
+  var hatayKm=GRUPLAR.hatay.reduce(function(s,p){var d=yakit[p];return s+(d?d.km:0);},0);
+  var marasKm=GRUPLAR.maras.reduce(function(s,p){var d=yakit[p];return s+(d?d.km:0);},0);
+  var entKm=GRUPLAR.entegre.reduce(function(s,p){var d=yakit[p];return s+(d?d.km:0);},0);
+  var maxTekArac=TUM_ARACLAR.filter(function(p){var t=teknik[p];return t&&t.toplam>0;}).sort(function(a,b){return(teknik[b]?teknik[b].toplam:0)-(teknik[a]?teknik[a].toplam:0);})[0];
+  document.getElementById("insight-bar").innerHTML="Toplam <strong>"+topKm.toLocaleString()+" km</strong> - <strong>"+topYakit.toLocaleString()+" L</strong> yakit - Ort. <strong>"+avgLkm+"</strong> L/km"+(maxTekArac?" - En yuksek teknik: <strong>"+maxTekArac+"</strong> (&#8378;"+(teknik[maxTekArac].toplam/1000).toFixed(0)+"k)":"");
+  var labels=TUM_ARACLAR.map(function(p){return p.replace("34 ","");});
+  var bgColors=TUM_ARACLAR.map(function(p){return GRUP_COL_A[getGrup(p)]||"rgba(90,112,137,.5)";});
+  var bdColors=TUM_ARACLAR.map(function(p){return GRUP_COL[getGrup(p)]||"#5a7089";});
+  var gc2="rgba(26,34,48,.8)";
+  if(charts.km){charts.km.destroy();}
+  charts.km=new Chart(document.getElementById("chart-km"),{type:"bar",data:{labels:labels,datasets:[{data:TUM_ARACLAR.map(function(p){var d=yakit[p];return d?d.km:0;}),backgroundColor:bgColors,borderColor:bdColors,borderWidth:1,borderRadius:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return c.raw.toLocaleString()+" km";}}}} ,scales:{x:{ticks:{color:"#3d4f63",font:{size:9},maxRotation:45},grid:{color:gc2}},y:{ticks:{color:"#3d4f63",font:{size:9},callback:function(v){return v.toLocaleString()+"km";}},grid:{color:gc2}}}}});
+  if(charts.yakit){charts.yakit.destroy();}
+  charts.yakit=new Chart(document.getElementById("chart-yakit"),{type:"bar",data:{labels:labels,datasets:[{data:TUM_ARACLAR.map(function(p){var d=yakit[p];return d?d.yakitL:0;}),backgroundColor:bgColors,borderColor:bdColors,borderWidth:1,borderRadius:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return c.raw.toLocaleString()+" L";}}}},scales:{x:{ticks:{color:"#3d4f63",font:{size:9},maxRotation:45},grid:{color:gc2}},y:{ticks:{color:"#3d4f63",font:{size:9},callback:function(v){return v+" L";}},grid:{color:gc2}}}}});
+  if(charts.lkm){charts.lkm.destroy();}
+  var lkmData=TUM_ARACLAR.map(function(p){var d=yakit[p];return d&&d.km>0&&d.yakitL>0?parseFloat((d.yakitL/d.km).toFixed(3)):0;});
+  var lkmColors=TUM_ARACLAR.map(function(p,i){return getLhkmColor(p,lkmData[i]);});
+  charts.lkm=new Chart(document.getElementById("chart-lkm"),{type:"bar",data:{labels:labels,datasets:[{data:lkmData,backgroundColor:lkmColors.map(function(c){return c+"bb";}),borderColor:lkmColors,borderWidth:1,borderRadius:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return c.raw>0?c.raw+" L/km":"Veri yok";}}}},scales:{x:{ticks:{color:"#3d4f63",font:{size:9},maxRotation:45},grid:{color:gc2}},y:{ticks:{color:"#3d4f63",font:{size:9},callback:function(v){return v+" L";}},grid:{color:gc2}}}}});
+  if(charts.tek){charts.tek.destroy();}
+  var tekSorted=TUM_ARACLAR.filter(function(p){var t=teknik[p];return t&&t.toplam>0;}).sort(function(a,b){return(teknik[b]?teknik[b].toplam:0)-(teknik[a]?teknik[a].toplam:0);});
+  charts.tek=new Chart(document.getElementById("chart-teknik"),{type:"bar",data:{labels:tekSorted.map(function(p){return p.replace("34 ","");}),datasets:[{label:"Ariza & Bakim",stack:"s",borderRadius:2,backgroundColor:"rgba(167,139,250,.7)",data:tekSorted.map(function(p){var t=teknik[p];return t&&t.ariza>0?Math.round(t.ariza/1000):0;})},{label:"Lastik",stack:"s",borderRadius:2,backgroundColor:"rgba(245,158,11,.7)",data:tekSorted.map(function(p){var t=teknik[p];return t?Math.round(t.lastik/1000):0;})}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,position:"top",labels:{color:"#5a7089",font:{size:10},boxWidth:10,padding:8}},tooltip:{callbacks:{label:function(c){return c.dataset.label+": &#8378;"+c.raw+"k";}}}},scales:{x:{stacked:true,ticks:{color:"#3d4f63",font:{size:9},maxRotation:45},grid:{color:gc2}},y:{stacked:true,ticks:{color:"#3d4f63",font:{size:9},callback:function(v){return "&#8378;"+v+"k";}},grid:{color:gc2}}}}});
+  if(charts.trend){charts.trend.destroy();}
+  charts.trend=new Chart(document.getElementById("chart-trend"),{type:"bar",data:{labels:labels,datasets:[{label:"Ocak KM",barPercentage:.3,categoryPercentage:.9,borderRadius:2,data:TUM_ARACLAR.map(function(p){return YAKIT.oca[p]?YAKIT.oca[p].km:0;}),backgroundColor:TUM_ARACLAR.map(function(p){return GRUP_COL[getGrup(p)]+"44";})},{label:"Subat KM",barPercentage:.3,categoryPercentage:.9,borderRadius:2,data:TUM_ARACLAR.map(function(p){return YAKIT.sub[p]?YAKIT.sub[p].km:0;}),backgroundColor:TUM_ARACLAR.map(function(p){return GRUP_COL[getGrup(p)]+"88";})},{label:"Mart KM",barPercentage:.3,categoryPercentage:.9,borderRadius:2,data:TUM_ARACLAR.map(function(p){return YAKIT.mar[p]?YAKIT.mar[p].km:0;}),backgroundColor:TUM_ARACLAR.map(function(p){return GRUP_COL[getGrup(p)]+"cc";})}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,position:"top",labels:{color:"#5a7089",font:{size:10},boxWidth:10,padding:8}},tooltip:{callbacks:{label:function(c){return c.dataset.label+": "+c.raw.toLocaleString()+" km";}}}},scales:{x:{ticks:{color:"#3d4f63",font:{size:9},maxRotation:45},grid:{color:gc2}},y:{ticks:{color:"#3d4f63",font:{size:9},callback:function(v){return v.toLocaleString()+"km";}},grid:{color:gc2}}}}});
+  var santiyeHtml="";
+  ["hatay","maras","entegre"].forEach(function(g){
+    var plakas=GRUPLAR[g];
+    var gKm=plakas.reduce(function(s,p){var d=yakit[p];return s+(d?d.km:0);},0);
+    var gYakit=plakas.reduce(function(s,p){var d=yakit[p];return s+(d?d.yakitL:0);},0);
+    var gTek=plakas.reduce(function(s,p){var t=teknik[p];return s+(t?Math.max(0,t.toplam):0);},0);
+    var gLkm=gKm>0&&gYakit>0?(gYakit/gKm).toFixed(3):"---";
+    var col=GRUP_COL[g];
+    santiyeHtml+="<div style="padding:10px 0;border-bottom:1px solid var(--border)"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px"><span style="font-family:Barlow Condensed,sans-serif;font-size:13px;font-weight:700;color:"+col+"">"+GRUP_LABEL[g]+"</span><span style="font-family:JetBrains Mono,monospace;font-size:10px;color:var(--muted2)">"+plakas.length+" arac</span></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:4px"><div style="font-size:10px;color:var(--muted)">KM: <span style="color:var(--text);font-family:JetBrains Mono,monospace">"+gKm.toLocaleString()+"</span></div><div style="font-size:10px;color:var(--muted)">Yakit: <span style="color:var(--maras);font-family:JetBrains Mono,monospace">"+gYakit.toLocaleString()+" L</span></div><div style="font-size:10px;color:var(--muted)">L/km: <span style="font-family:JetBrains Mono,monospace;color:"+getLhkmColor(plakas[0],parseFloat(gLkm))+"">"+gLkm+"</span></div><div style="font-size:10px;color:var(--muted)">Teknik: <span style="color:var(--purple);font-family:JetBrains Mono,monospace">&#8378;"+(gTek/1000).toFixed(0)+"k</span></div></div></div>";
+  });
+  document.getElementById("santiye-ozet").innerHTML=santiyeHtml;
+  function rankList(items,container,valFn,col,suffixFn){
+    var vals=items.map(function(p){return valFn(p);});var max=Math.max.apply(null,vals);var html="";
+    items.forEach(function(p,i){var v=vals[i];var pct=max>0?v/max*100:0;html+="<div class="rank-item"><div class="rank-plaka" style="color:"+GRUP_COL[getGrup(p)]+"">"+p.replace("34 ","")+"</div><div class="rank-bar-outer"><div class="rank-bar-inner" style="width:"+pct+"%;background:"+col+""></div></div><div class="rank-val" style="color:"+col+"">"+suffixFn(v)+"</div></div>";});
+    document.getElementById(container).innerHTML=html;
+  }
+  var topKmList=TUM_ARACLAR.slice().sort(function(a,b){return(yakit[b]?yakit[b].km:0)-(yakit[a]?yakit[a].km:0);}).slice(0,7);
+  var topTekList=TUM_ARACLAR.filter(function(p){var t=teknik[p];return t&&t.toplam>0;}).sort(function(a,b){return(teknik[b]?teknik[b].toplam:0)-(teknik[a]?teknik[a].toplam:0);}).slice(0,7);
+  var topYakList=TUM_ARACLAR.slice().sort(function(a,b){return(yakit[b]?yakit[b].yakitL:0)-(yakit[a]?yakit[a].yakitL:0);}).slice(0,7);
+  rankList(topKmList,"top-km",function(p){return yakit[p]?yakit[p].km:0;},"#2dd4bf",function(v){return v.toLocaleString()+" km";});
+  rankList(topTekList,"top-teknik",function(p){return teknik[p]?teknik[p].toplam:0;},"#a78bfa",function(v){return "&#8378;"+(v/1000).toFixed(0)+"k";});
+  rankList(topYakList,"top-yakit",function(p){return yakit[p]?yakit[p].yakitL:0;},"#f59e0b",function(v){return v.toLocaleString()+" L";});
+  var tbody="";
+  TUM_ARACLAR.forEach(function(p){
+    var d=yakit[p]||{km:0,yakitL:0};var t=teknik[p]||{ariza:0,lastik:0,toplam:0};
+    var g=getGrup(p);var col=GRUP_COL[g];
+    var lkm=d.km>0&&d.yakitL>0?(d.yakitL/d.km).toFixed(3):"---";
+    var lkmCol=lkm!="---"?getLhkmColor(p,parseFloat(lkm)):"var(--muted)";
+    tbody+="<tr><td><span class="plaka-cell" style="color:"+col+"">"+p+"</span></td><td><span class="gbadge" style="background:"+col+"22;color:"+col+"">"+GRUP_LABEL[g]+"</span></td><td class="mono" style="color:var(--teal)">"+( d.km>0?d.km.toLocaleString()+" km":"---")+"</td><td class="mono" style="color:var(--maras)">"+( d.yakitL>0?d.yakitL.toLocaleString()+" L":"---")+"</td><td class="mono" style="color:"+lkmCol+";font-weight:700">"+lkm+(lkm!="---"?" L":"")+"</td><td class="mono" style="color:var(--purple)">"+( t.toplam>0?fmtFull(t.toplam):"---")+"</td><td class="mono" style="color:var(--muted2)">"+( t.ariza>0?fmtFull(t.ariza):"---")+"</td><td class="mono" style="color:#f59e0b">"+( t.lastik>0?fmtFull(t.lastik):"---")+"</td></tr>";
+  });
+  document.getElementById("tablo-body").innerHTML=tbody;
+  var gridHtml="";
+  TUM_ARACLAR.forEach(function(p){
+    var d=yakit[p]||{km:0,yakitL:0};var t=teknik[p]||{ariza:0,lastik:0,toplam:0};
+    var g=getGrup(p);var col=GRUP_COL[g];
+    var lkm=d.km>0&&d.yakitL>0?(d.yakitL/d.km).toFixed(3):"---";
+    var lkmCol=lkm!="---"?getLhkmColor(p,parseFloat(lkm)):"var(--muted)";
+    var barPct=d.km>0?Math.min(d.km/7000*100,100):0;
+    gridHtml+="<div class="arac-kart" style="border-left-color:"+col+""><div class="ak-head"><div><div class="ak-plaka" style="color:"+col+"">"+p+"</div><div class="ak-model">SCANIA - Ciftceker - "+GRUP_LABEL[g]+"</div></div><span class="ak-badge" style="background:"+col+"22;color:"+col+"">"+( d.km>0?d.km.toLocaleString()+" km":"---")+"</span></div><div class="ak-metrics"><div class="ak-m"><div class="ak-ml">Yakit</div><div class="ak-mv" style="color:var(--maras)">"+( d.yakitL>0?d.yakitL.toLocaleString()+" L":"---")+"</div></div><div class="ak-m"><div class="ak-ml">L/km</div><div class="ak-mv" style="color:"+lkmCol+"">"+lkm+(lkm!="---"?" L":"")+"</div></div><div class="ak-m"><div class="ak-ml">Teknik</div><div class="ak-mv" style="color:var(--purple)">"+( t.toplam>0?fmtTL(t.toplam):"---")+"</div></div><div class="ak-m"><div class="ak-ml">Ariza</div><div class="ak-mv" style="color:var(--muted2)">"+( t.ariza>0?fmtTL(t.ariza):"---")+"</div></div><div class="ak-m"><div class="ak-ml">Lastik</div><div class="ak-mv" style="color:#f59e0b">"+( t.lastik>0?fmtTL(t.lastik):"---")+"</div></div><div class="ak-m"><div class="ak-ml">Top.Gider</div><div class="ak-mv" style="color:var(--red)">"+( t.toplam>0?fmtTL(t.toplam):"---")+"</div></div></div><div class="ak-bar"><div class="ak-bf" style="width:"+barPct+"%;background:"+col+""></div></div></div>";
+  });
+  document.getElementById("arac-grid").innerHTML=gridHtml;
+}
+function setPeriod(period,btn){document.querySelectorAll(".ptab").forEach(function(b){b.classList.remove("active");});btn.classList.add("active");var etiket={oca:"Ocak 2026",sub:"Subat 2026",mar:"Mart 2026","2026":"2026 Ozet"};document.getElementById("donem-text").textContent=etiket[period]||period;render(period);}
+render("2026");
+</script>
+</body>
+</html>
