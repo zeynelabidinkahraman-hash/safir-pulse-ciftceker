@@ -152,8 +152,8 @@ function getYakit(p){if(p==="sub")return YAKIT.sub;if(p==="mar")return YAKIT.mar
 function getTeknik(p){if(p==="sub")return TEKNIK.sub;if(p==="mar")return TEKNIK.mar;if(p==="2026"){var r={};Object.keys(TEKNIK.oca).forEach(function(k){var o=TEKNIK.oca[k]||{ariza:0,lastik:0,toplam:0};var s=TEKNIK.sub[k]||{ariza:0,lastik:0,toplam:0};var m=TEKNIK.mar[k]||{ariza:0,lastik:0,toplam:0};r[k]={ariza:o.ariza+s.ariza+m.ariza,lastik:o.lastik+s.lastik+m.lastik,toplam:o.toplam+s.toplam+m.toplam};});return r;}return TEKNIK.oca;}
 var charts={};
 Chart.defaults.color="#3d4f63";Chart.defaults.borderColor="#1a2230";Chart.defaults.font.family="JetBrains Mono,monospace";Chart.defaults.font.size=10;
-function fmtTL(n){return n>0?"&#8378;"+(n/1000).toFixed(0)+"k":"---";}
-function fmtFull(n){return "&#8378;"+Math.round(n).toLocaleString("tr-TR");}
+function fmtTL(n){return n>0?"₺"+(n/1000).toFixed(0)+"k":"---";}
+function fmtFull(n){return "₺"+Math.round(n).toLocaleString("tr-TR");}
 function getLhkmColor(plaka,lkm){if(lkm<=0)return"#3d4f63";var g=getGrup(plaka);if(g==="hatay")return lkm>0.50?"#ef4444":lkm>0.42?"#f59e0b":"#10b981";return lkm>2.00?"#ef4444":lkm>1.50?"#f59e0b":"#10b981";}
 var TUM_ARACLAR=GRUPLAR.hatay.concat(GRUPLAR.maras).concat(GRUPLAR.entegre);
 function render(period){
@@ -171,9 +171,9 @@ function render(period){
   var lkmEl=document.getElementById("kpi-lkm");
   lkmEl.textContent=avgLkm>0?avgLkm+" L/km":"---";
   lkmEl.style.color=avgLkm>0?(parseFloat(avgLkm)>1.0?"#f59e0b":"#10b981"):"var(--muted2)";
-  document.getElementById("kpi-teknik").textContent=topTeknik>0?"&#8378;"+(topTeknik/1000).toFixed(0)+"k":"---";
-  document.getElementById("kpi-teknik-sub").textContent="Ariza &#8378;"+(topAriza/1000).toFixed(0)+"k - Lastik &#8378;"+(topLastik/1000).toFixed(0)+"k";
-  document.getElementById("kpi-lastik").textContent=topLastik>0?"&#8378;"+(topLastik/1000).toFixed(0)+"k":"---";
+  document.getElementById("kpi-teknik").textContent=topTeknik>0?"₺"+(topTeknik/1000).toFixed(0)+"k":"---";
+  document.getElementById("kpi-teknik-sub").textContent="Ariza ₺"+(topAriza/1000).toFixed(0)+"k - Lastik ₺"+(topLastik/1000).toFixed(0)+"k";
+  document.getElementById("kpi-lastik").textContent=topLastik>0?"₺"+(topLastik/1000).toFixed(0)+"k":"---";
   document.getElementById("kpi-lastik-sub").textContent="Sadece lastik";
   var hatayKm=GRUPLAR.hatay.reduce(function(s,p){var d=yakit[p];return s+(d?d.km:0);},0);
   var marasKm=GRUPLAR.maras.reduce(function(s,p){var d=yakit[p];return s+(d?d.km:0);},0);
