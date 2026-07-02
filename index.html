@@ -290,7 +290,7 @@ body {
     </div>
     <div id="donem-text" style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted)">2026 Özet</div>
   </div>
-  <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted)">Son güncelleme: Haziran 2026 · KM/Yakıt 24/25 araç ✓ · KSN 825→Entegre · NUA 973 + teknik gider bekleniyor</div>
+  <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted)">Son güncelleme: Haziran 2026 · KM/Yakıt 24/25 araç ✓ · KSN 825→Entegre · KSN 642+NUA 903→Kartal/Enam · NUA 973 Alton (veri) + teknik gider bekleniyor</div>
 </div>
 
 <!-- KPI -->
@@ -474,9 +474,11 @@ const GRUPLAR = {
 
 // Dönemsel grup override: plaka -> {period -> grup}
 const GRUP_OVERRIDE = {
-  '34 NUA 973': { nis: 'kartal', may: 'alton' },
+  '34 NUA 973': { nis: 'kartal', may: 'alton', haz: 'alton' },
   '34 KOA 421': { may: 'alton' },
-  '34 KSN 825': { haz: 'entegre' }
+  '34 KSN 825': { haz: 'entegre' },
+  '34 KSN 642': { haz: 'kartal' },
+  '34 NUA 903': { haz: 'kartal' }
 };
 
 function getGrup(plaka, period) {
@@ -633,10 +635,12 @@ const YAKIT = {
     '34 NUA 903':{km:1434, yakitL:1486},
   },
   haz: {
-    // İskenderun / Hatay (3 — KSN 825 Haziran'da Entegre'ye alındı)
-    '34 KSN 642':{km:1231, yakitL:1418},
+    // İskenderun / Hatay (2 — KSN 825→Entegre, KSN 642→Kartal/Enam)
     '34 KZN 393':{km:2587, yakitL:1724},
     '34 KZN 266':{km:2139, yakitL:1691},
+    // Kartal/Enam şantiyesi (2)
+    '34 KSN 642':{km:1231, yakitL:1418},
+    '34 NUA 903':{km:1121, yakitL:1572},
     // Entegre (11 — KSN 825 dahil)
     '34 KOA 236':{km:2734, yakitL:2501},
     '34 KGH 607':{km:1089, yakitL:1571},
@@ -649,7 +653,7 @@ const YAKIT = {
     '34 KOA 457':{km:2247, yakitL:2415},
     '34 NIR 127':{km:1932, yakitL:1894},
     '34 NIR 113':{km:1893, yakitL:1185},
-    // Maraş (10 — NUA 973 bekleniyor)
+    // Maraş (9 — NUA 903→Kartal/Enam; NUA 973 Alton'da, veri bekleniyor)
     '34 KSN 710':{km:2443, yakitL:2907},
     '34 MAM 959':{km:1666, yakitL:1863},
     '34 KZN 427':{km:2238, yakitL:2591},
@@ -659,7 +663,6 @@ const YAKIT = {
     '34 NUA 995':{km:1514, yakitL:2165},
     '34 NUA 879':{km:1828, yakitL:2242},
     '34 NUA 958':{km:1554, yakitL:1848},
-    '34 NUA 903':{km:1121, yakitL:1572},
   }
 };
 
@@ -1020,9 +1023,9 @@ function render(period) {
 
   // ── ŞANTİYE ÖZETİ ──
   var santiyeHtml = '';
-  // Ana gruplar — override olan araçları dönemsel olarak çıkar
+  // Ana gruplar — override giden araçları çıkar, gelen araçları dahil et
   ['hatay','maras','entegre'].forEach(function(g) {
-    var plakas = GRUPLAR[g].filter(function(p){ return getGrup(p,period)===g; });
+    var plakas = TUM_ARACLAR.filter(function(p){ return getGrup(p,period)===g; });
     if(plakas.length===0) return;
     var gKm    = plakas.reduce(function(s,p){var d=yakit[p];return s+(d?d.km:0);},0);
     var gYakit = plakas.reduce(function(s,p){var d=yakit[p];return s+(d?d.yakitL:0);},0);
