@@ -365,7 +365,7 @@ body {
       <div class="card-header">
         <div>
           <div class="card-title">L/km Tüketim Analizi</div>
-          <div class="card-desc">Hatay &lt;0.42 yeşil · Maraş/Entegre &lt;1.50 yeşil</div>
+          <div class="card-desc">Hatay &lt;0.42 yeşil · Diğer şantiyeler &lt;1.50 yeşil · Eşik, aracın o dönemki şantiyesine göre</div>
         </div>
       </div>
       <div class="card-body">
@@ -869,9 +869,9 @@ function fmtK(n) { return n>0?(n/1000).toFixed(0)+'k':'—'; }
 function fmtTL(n) { return n>0?'₺'+(n/1000).toFixed(0)+'k':'—'; }
 function fmtFull(n) { return '₺'+Math.round(n).toLocaleString('tr-TR'); }
 
-function getLhkmColor(plaka, lkm) {
+function getLhkmColor(plaka, lkm, period) {
   if(lkm<=0) return '#3d4f63';
-  var g = getGrup(plaka);
+  var g = getGrup(plaka, period);
   if(g==='hatay') return lkm>0.50?'#ef4444':lkm>0.42?'#f59e0b':'#10b981';
   return lkm>2.00?'#ef4444':lkm>1.50?'#f59e0b':'#10b981';
 }
@@ -957,7 +957,7 @@ function render(period) {
   // ── GRAFİK 3: L/km ──
   if(charts.lkm){charts.lkm.destroy();}
   var lkmData   = TUM_ARACLAR.map(function(p){var d=yakit[p];return d&&d.km>0&&d.yakitL>0?parseFloat((d.yakitL/d.km).toFixed(3)):0;});
-  var lkmColors = TUM_ARACLAR.map(function(p,i){return getLhkmColor(p,lkmData[i]);});
+  var lkmColors = TUM_ARACLAR.map(function(p,i){return getLhkmColor(p,lkmData[i],period);});
   charts.lkm = new Chart(document.getElementById('chart-lkm'),{
     type:'bar',
     data:{labels:labels, datasets:[{data:lkmData, backgroundColor:lkmColors.map(function(c){return c+'bb';}),
@@ -1040,7 +1040,7 @@ function render(period) {
     santiyeHtml += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:4px">';
     santiyeHtml += '<div style="font-size:10px;color:var(--muted)">KM: <span style="color:var(--text);font-family:\'JetBrains Mono\',monospace">'+gKm.toLocaleString()+'</span></div>';
     santiyeHtml += '<div style="font-size:10px;color:var(--muted)">Yakıt: <span style="color:var(--maras);font-family:\'JetBrains Mono\',monospace">'+gYakit.toLocaleString()+' L</span></div>';
-    santiyeHtml += '<div style="font-size:10px;color:var(--muted)">L/km: <span style="font-family:\'JetBrains Mono\',monospace;color:'+getLhkmColor(plakas[0],parseFloat(gLkm))+'">'+gLkm+'</span></div>';
+    santiyeHtml += '<div style="font-size:10px;color:var(--muted)">L/km: <span style="font-family:\'JetBrains Mono\',monospace;color:'+getLhkmColor(plakas[0],parseFloat(gLkm),period)+'">'+gLkm+'</span></div>';
     santiyeHtml += '<div style="font-size:10px;color:var(--muted)">Teknik: <span style="color:var(--purple);font-family:\'JetBrains Mono\',monospace">₺'+(gTek/1000).toFixed(0)+'k</span></div>';
     santiyeHtml += '</div></div>';
   });
@@ -1063,7 +1063,7 @@ function render(period) {
     santiyeHtml += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:4px">';
     santiyeHtml += '<div style="font-size:10px;color:var(--muted)">KM: <span style="color:var(--text);font-family:\'JetBrains Mono\',monospace">'+gKm.toLocaleString()+'</span></div>';
     santiyeHtml += '<div style="font-size:10px;color:var(--muted)">Yakıt: <span style="color:var(--maras);font-family:\'JetBrains Mono\',monospace">'+gYakit.toLocaleString()+' L</span></div>';
-    santiyeHtml += '<div style="font-size:10px;color:var(--muted)">L/km: <span style="font-family:\'JetBrains Mono\',monospace;color:'+getLhkmColor(plakas[0],parseFloat(gLkm))+'">'+gLkm+'</span></div>';
+    santiyeHtml += '<div style="font-size:10px;color:var(--muted)">L/km: <span style="font-family:\'JetBrains Mono\',monospace;color:'+getLhkmColor(plakas[0],parseFloat(gLkm),period)+'">'+gLkm+'</span></div>';
     santiyeHtml += '<div style="font-size:10px;color:var(--muted)">Teknik: <span style="color:var(--purple);font-family:\'JetBrains Mono\',monospace">₺'+(gTek/1000).toFixed(0)+'k</span></div>';
     santiyeHtml += '</div></div>';
   });
@@ -1104,7 +1104,7 @@ function render(period) {
     var g = getGrup(p,period);
     var col = GRUP_COL[g];
     var lkm = d.km>0&&d.yakitL>0?(d.yakitL/d.km).toFixed(3):'—';
-    var lkmCol = lkm!='—'?getLhkmColor(p,parseFloat(lkm)):'var(--muted)';
+    var lkmCol = lkm!='—'?getLhkmColor(p,parseFloat(lkm),period):'var(--muted)';
     tbody += '<tr>';
     tbody += '<td><span class="plaka-cell" style="color:'+col+'">'+p+'</span></td>';
     tbody += '<td><span class="gbadge" style="background:'+col+'22;color:'+col+'">'+GRUP_LABEL[g]+'</span></td>';
@@ -1126,7 +1126,7 @@ function render(period) {
     var g = getGrup(p,period);
     var col = GRUP_COL[g];
     var lkm = d.km>0&&d.yakitL>0?(d.yakitL/d.km).toFixed(3):'—';
-    var lkmCol = lkm!='—'?getLhkmColor(p,parseFloat(lkm)):'var(--muted)';
+    var lkmCol = lkm!='—'?getLhkmColor(p,parseFloat(lkm),period):'var(--muted)';
     var barPct = d.km>0?Math.min(d.km/7000*100,100):0;
     gridHtml += '<div class="arac-kart" style="border-left-color:'+col+'">';
     gridHtml += '<div class="ak-head">';
