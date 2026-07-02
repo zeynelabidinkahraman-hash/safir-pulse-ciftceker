@@ -286,10 +286,11 @@ body {
       <button class="ptab" onclick="setPeriod('mar',this)">Mart</button>
       <button class="ptab" onclick="setPeriod('nis',this)">Nisan</button>
       <button class="ptab" onclick="setPeriod('may',this)">Mayıs</button>
+      <button class="ptab" onclick="setPeriod('haz',this)">Haziran</button>
     </div>
     <div id="donem-text" style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted)">2026 Özet</div>
   </div>
-  <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted)">Son güncelleme: Mayıs 2026 · Mayıs KM/Yakıt + Teknik gider tüm gruplar ✓</div>
+  <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted)">Son güncelleme: Haziran 2026 · KM/Yakıt 24/25 araç ✓ · KSN 825→Entegre · NUA 973 + teknik gider bekleniyor</div>
 </div>
 
 <!-- KPI -->
@@ -390,7 +391,7 @@ body {
       <div class="card-header">
         <div>
           <div class="card-title">Aylık KM Karşılaştırması</div>
-          <div class="card-desc">Ocak · Şubat · Mart · Nisan · Mayıs — Şantiye renkleriyle</div>
+          <div class="card-desc">Ocak · Şubat · Mart · Nisan · Mayıs · Haziran — Şantiye renkleriyle</div>
         </div>
       </div>
       <div class="card-body">
@@ -474,7 +475,8 @@ const GRUPLAR = {
 // Dönemsel grup override: plaka -> {period -> grup}
 const GRUP_OVERRIDE = {
   '34 NUA 973': { nis: 'kartal', may: 'alton' },
-  '34 KOA 421': { may: 'alton' }
+  '34 KOA 421': { may: 'alton' },
+  '34 KSN 825': { haz: 'entegre' }
 };
 
 function getGrup(plaka, period) {
@@ -629,6 +631,35 @@ const YAKIT = {
     '34 NUA 879':{km:2313, yakitL:1774},
     '34 NUA 958':{km:1434, yakitL:1727},
     '34 NUA 903':{km:1434, yakitL:1486},
+  },
+  haz: {
+    // İskenderun / Hatay (3 — KSN 825 Haziran'da Entegre'ye alındı)
+    '34 KSN 642':{km:1231, yakitL:1418},
+    '34 KZN 393':{km:2587, yakitL:1724},
+    '34 KZN 266':{km:2139, yakitL:1691},
+    // Entegre (11 — KSN 825 dahil)
+    '34 KOA 236':{km:2734, yakitL:2501},
+    '34 KGH 607':{km:1089, yakitL:1571},
+    '34 KGR 249':{km:3126, yakitL:3683},
+    '34 KGH 623':{km:2683, yakitL:3406},
+    '34 MAN 020':{km:588,  yakitL:1163},
+    '34 KOA 421':{km:1169, yakitL:1340},
+    '34 KSN 825':{km:1556, yakitL:2004},
+    '34 KGH 216':{km:1462, yakitL:1824},
+    '34 KOA 457':{km:2247, yakitL:2415},
+    '34 NIR 127':{km:1932, yakitL:1894},
+    '34 NIR 113':{km:1893, yakitL:1185},
+    // Maraş (10 — NUA 973 bekleniyor)
+    '34 KSN 710':{km:2443, yakitL:2907},
+    '34 MAM 959':{km:1666, yakitL:1863},
+    '34 KZN 427':{km:2238, yakitL:2591},
+    '34 NEU 346':{km:1627, yakitL:1681},
+    '34 NEU 278':{km:2678, yakitL:2832},
+    '34 NEU 388':{km:1975, yakitL:2443},
+    '34 NUA 995':{km:1514, yakitL:2165},
+    '34 NUA 879':{km:1828, yakitL:2242},
+    '34 NUA 958':{km:1554, yakitL:1848},
+    '34 NUA 903':{km:1121, yakitL:1572},
   }
 };
 
@@ -768,6 +799,9 @@ const TEKNIK = {
     '34 NUA 903':{ariza:54050,    lastik:8050,     toplam:62100},
     '34 NUA 958':{ariza:2070,     lastik:5462.50,  toplam:7532.50},
     '34 NEU 388':{ariza:52123.76, lastik:3737.50,  toplam:55861.26},
+  },
+  haz: {
+    // Teknik giderler bekleniyor
   }
 };
 
@@ -776,6 +810,7 @@ function getYakit(period) {
   if(period==='mar') return YAKIT.mar;
   if(period==='nis') return YAKIT.nis;
   if(period==='may') return YAKIT.may;
+  if(period==='haz') return YAKIT.haz||{};
   if(period==='2026') {
     var r={};
     Object.keys(YAKIT.oca).forEach(function(p){
@@ -784,7 +819,8 @@ function getYakit(period) {
       var m=YAKIT.mar[p]||{km:0,yakitL:0};
       var n=YAKIT.nis[p]||{km:0,yakitL:0};
       var y=(YAKIT.may&&YAKIT.may[p])||{km:0,yakitL:0};
-      r[p]={km:(o.km||0)+(s.km||0)+(m.km||0)+(n.km||0)+(y.km||0), yakitL:(o.yakitL||0)+(s.yakitL||0)+(m.yakitL||0)+(n.yakitL||0)+(y.yakitL||0)};
+      var h=(YAKIT.haz&&YAKIT.haz[p])||{km:0,yakitL:0};
+      r[p]={km:(o.km||0)+(s.km||0)+(m.km||0)+(n.km||0)+(y.km||0)+(h.km||0), yakitL:(o.yakitL||0)+(s.yakitL||0)+(m.yakitL||0)+(n.yakitL||0)+(y.yakitL||0)+(h.yakitL||0)};
     });
     return r;
   }
@@ -796,9 +832,10 @@ function getTeknik(period) {
   if(period==='mar') return TEKNIK.mar||{};
   if(period==='nis') return TEKNIK.nis||{};
   if(period==='may') return TEKNIK.may||{};
+  if(period==='haz') return TEKNIK.haz||{};
   if(period==='2026') {
     var r={};
-    var tum = Object.keys(TEKNIK.oca).concat(Object.keys(TEKNIK.sub)).concat(Object.keys(TEKNIK.mar||{})).concat(Object.keys(TEKNIK.nis||{})).concat(Object.keys(TEKNIK.may||{}));
+    var tum = Object.keys(TEKNIK.oca).concat(Object.keys(TEKNIK.sub)).concat(Object.keys(TEKNIK.mar||{})).concat(Object.keys(TEKNIK.nis||{})).concat(Object.keys(TEKNIK.may||{})).concat(Object.keys(TEKNIK.haz||{}));
     tum.forEach(function(p){
       if(r[p]) return;
       var o=TEKNIK.oca[p]||{ariza:0,lastik:0,toplam:0};
@@ -806,7 +843,8 @@ function getTeknik(period) {
       var m=(TEKNIK.mar&&TEKNIK.mar[p])||{ariza:0,lastik:0,toplam:0};
       var n=(TEKNIK.nis&&TEKNIK.nis[p])||{ariza:0,lastik:0,toplam:0};
       var y=(TEKNIK.may&&TEKNIK.may[p])||{ariza:0,lastik:0,toplam:0};
-      r[p]={ariza:(o.ariza||0)+(s.ariza||0)+(m.ariza||0)+(n.ariza||0)+(y.ariza||0), lastik:(o.lastik||0)+(s.lastik||0)+(m.lastik||0)+(n.lastik||0)+(y.lastik||0), toplam:(o.toplam||0)+(s.toplam||0)+(m.toplam||0)+(n.toplam||0)+(y.toplam||0)};
+      var h=(TEKNIK.haz&&TEKNIK.haz[p])||{ariza:0,lastik:0,toplam:0};
+      r[p]={ariza:(o.ariza||0)+(s.ariza||0)+(m.ariza||0)+(n.ariza||0)+(y.ariza||0)+(h.ariza||0), lastik:(o.lastik||0)+(s.lastik||0)+(m.lastik||0)+(n.lastik||0)+(y.lastik||0)+(h.lastik||0), toplam:(o.toplam||0)+(s.toplam||0)+(m.toplam||0)+(n.toplam||0)+(y.toplam||0)+(h.toplam||0)};
     });
     return r;
   }
@@ -853,7 +891,7 @@ function render(period) {
   document.getElementById('kpi-km').textContent    = topKm>0?topKm.toLocaleString()+' km':'—';
   document.getElementById('kpi-km-sub').textContent = 'Tüm gruplar';
   document.getElementById('kpi-yakit').textContent  = topYakit>0?topYakit.toLocaleString()+' L':'—';
-  document.getElementById('kpi-yakit-sub').textContent = period==='2026'?'Oca+Şub+Mar+Nis+May':period==='oca'?'Ocak 2026':period==='sub'?'Şubat 2026':period==='mar'?'Mart 2026':period==='nis'?'Nisan 2026':'Mayıs 2026';
+  document.getElementById('kpi-yakit-sub').textContent = period==='2026'?'Oca–Haz 2026':period==='oca'?'Ocak 2026':period==='sub'?'Şubat 2026':period==='mar'?'Mart 2026':period==='nis'?'Nisan 2026':period==='may'?'Mayıs 2026':'Haziran 2026';
   var lkmEl = document.getElementById('kpi-lkm');
   lkmEl.textContent = avgLkm>0?avgLkm+' L/km':'—';
   lkmEl.style.color = avgLkm>0?(parseFloat(avgLkm)>1.0?'#f59e0b':'#10b981'):'var(--muted2)';
@@ -967,7 +1005,11 @@ function render(period) {
           backgroundColor:TUM_ARACLAR.map(function(p){return GRUP_COL[getGrup(p,'nis')]+'cc';})},
         {label:'Mayıs KM', barPercentage:.25, categoryPercentage:.9, borderRadius:2,
           data:TUM_ARACLAR.map(function(p){return (YAKIT.may&&YAKIT.may[p])?YAKIT.may[p].km:0;}),
-          backgroundColor:TUM_ARACLAR.map(function(p){return GRUP_COL[getGrup(p,'may')]+'ff';})}
+          backgroundColor:TUM_ARACLAR.map(function(p){return GRUP_COL[getGrup(p,'may')]+'ff';})},
+        {label:'Haziran KM', barPercentage:.25, categoryPercentage:.9, borderRadius:2,
+          data:TUM_ARACLAR.map(function(p){return (YAKIT.haz&&YAKIT.haz[p])?YAKIT.haz[p].km:0;}),
+          backgroundColor:TUM_ARACLAR.map(function(p){return GRUP_COL[getGrup(p,'haz')]+'ff';}),
+          borderColor:TUM_ARACLAR.map(function(p){return GRUP_COL[getGrup(p,'haz')];}), borderWidth:1}
       ]},
     options:{responsive:true,maintainAspectRatio:false,
       plugins:{legend:{display:true,position:'top',labels:{color:'#5a7089',font:{size:10},boxWidth:10,padding:8}},
@@ -1107,7 +1149,7 @@ function setPeriod(period, btn) {
   currentPeriod = period;
   document.querySelectorAll('.ptab').forEach(function(b){b.classList.remove('active');});
   btn.classList.add('active');
-  var etiket={oca:'Ocak 2026',sub:'Şubat 2026',mar:'Mart 2026',nis:'Nisan 2026',may:'Mayıs 2026','2026':'2026 Özet'};
+  var etiket={oca:'Ocak 2026',sub:'Şubat 2026',mar:'Mart 2026',nis:'Nisan 2026',may:'Mayıs 2026',haz:'Haziran 2026','2026':'2026 Özet'};
   document.getElementById('donem-text').textContent = etiket[period]||period;
   render(period);
 }
