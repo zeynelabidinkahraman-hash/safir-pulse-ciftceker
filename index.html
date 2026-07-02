@@ -365,7 +365,7 @@ body {
       <div class="card-header">
         <div>
           <div class="card-title">L/km Tüketim Analizi</div>
-          <div class="card-desc">Hatay &lt;0.42 yeşil · Diğer şantiyeler &lt;1.50 yeşil · Eşik, aracın o dönemki şantiyesine göre</div>
+          <div class="card-desc">Şantiye renkleriyle · Kesikli çizgi = filo ortalaması · Çizgiyi aşan araç ortalamadan fazla yakıyor</div>
         </div>
       </div>
       <div class="card-body">
@@ -954,16 +954,28 @@ function render(period) {
               y:{ticks:{color:'#3d4f63',font:{size:9},callback:function(v){return v+' L';}},grid:{color:gc2}}}}
   });
 
-  // ── GRAFİK 3: L/km ──
+  // ── GRAFİK 3: L/km — şantiye renkleri + filo ortalaması çizgisi ──
   if(charts.lkm){charts.lkm.destroy();}
-  var lkmData   = TUM_ARACLAR.map(function(p){var d=yakit[p];return d&&d.km>0&&d.yakitL>0?parseFloat((d.yakitL/d.km).toFixed(3)):0;});
-  var lkmColors = TUM_ARACLAR.map(function(p,i){return getLhkmColor(p,lkmData[i],period);});
+  var lkmData = TUM_ARACLAR.map(function(p){var d=yakit[p];return d&&d.km>0&&d.yakitL>0?parseFloat((d.yakitL/d.km).toFixed(3)):0;});
+  var avgNum  = topKm>0&&topYakit>0?parseFloat((topYakit/topKm).toFixed(3)):0;
   charts.lkm = new Chart(document.getElementById('chart-lkm'),{
     type:'bar',
-    data:{labels:labels, datasets:[{data:lkmData, backgroundColor:lkmColors.map(function(c){return c+'bb';}),
-      borderColor:lkmColors, borderWidth:1, borderRadius:2}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},
-      tooltip:{callbacks:{label:function(c){return c.raw>0?c.raw+' L/km':'Veri yok';}}}},
+    data:{labels:labels, datasets:[
+      {type:'line', label:'Filo Ort. '+(avgNum>0?avgNum+' L/km':''), order:0,
+        data:labels.map(function(){return avgNum>0?avgNum:null;}),
+        borderColor:'#e2e8f0', borderWidth:1.5, borderDash:[6,4], pointRadius:0, pointHitRadius:0, fill:false},
+      {label:'L/km', order:1, data:lkmData,
+        backgroundColor:bgColors, borderColor:bdColors, borderWidth:1, borderRadius:2}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:true,position:'top',labels:{color:'#5a7089',font:{size:10},boxWidth:14,padding:8,
+        filter:function(item){return item.text.indexOf('Ort')>=0;}}},
+        tooltip:{callbacks:{label:function(c){
+          if(c.dataset.type==='line') return 'Filo ortalaması: '+c.raw+' L/km';
+          if(!(c.raw>0)) return 'Veri yok';
+          var fark = avgNum>0?((c.raw-avgNum)/avgNum*100):0;
+          return c.raw+' L/km ('+(fark>=0?'+':'')+fark.toFixed(0)+'% ort. göre)';
+        }}}},
       scales:{x:{ticks:{color:'#3d4f63',font:{size:9},maxRotation:45},grid:{color:gc2}},
               y:{ticks:{color:'#3d4f63',font:{size:9},callback:function(v){return v+' L';}},grid:{color:gc2}}}}
   });
